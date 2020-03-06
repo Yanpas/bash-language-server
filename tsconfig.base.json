@@ -11,11 +11,5 @@
       "es2016"
     ],
     "sourceMap": true
-  },
-  "exclude": [
-    "node_modules",
-    "**/__tests__/*",
-    "server/setupJest.ts",
-    "testing"
-  ]
+  }
 }

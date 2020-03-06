@@ -9,5 +9,9 @@
     ],
     // TODO: enable:
     "strict": false,
-  }
+  },
+  "exclude": [
+    "**/__tests__/*",
+    "../testing"
+  ]
 }

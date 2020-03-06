@@ -3,5 +3,14 @@
   "compilerOptions": {
     "outDir": "out",
     "rootDir": "."
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "out",
+    "**/__tests__/*",
+    "../server",
+    "../testing"
+  ]
 }
