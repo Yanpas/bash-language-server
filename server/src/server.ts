@@ -24,8 +24,14 @@ export default class BashServer {
   ): Promise<BashServer> {
     const parser = await initializeParser()
 
+    const { PATH } = process.env
+
+    if (!PATH) {
+      throw new Error('Expected PATH environment variable to be set')
+    }
+
     return Promise.all([
-      Executables.fromPath(process.env.PATH),
+      Executables.fromPath(PATH),
       Analyzer.fromRoot({ connection, rootPath, parser }),
     ]).then(xs => {
       const executables = xs[0]
@@ -125,10 +131,16 @@ export default class BashServer {
     )
   }
 
-  private async onHover(params: LSP.TextDocumentPositionParams): Promise<LSP.Hover> {
+  private async onHover(
+    params: LSP.TextDocumentPositionParams,
+  ): Promise<LSP.Hover | null> {
     const word = this.getWordAtPoint(params)
 
     this.logRequest({ request: 'onHover', params, word })
+
+    if (!word) {
+      return null
+    }
 
     const explainshellEndpoint = config.getExplainshellEndpoint()
     if (explainshellEndpoint) {
@@ -180,9 +192,12 @@ export default class BashServer {
     return null
   }
 
-  private onDefinition(params: LSP.TextDocumentPositionParams): LSP.Definition {
+  private onDefinition(params: LSP.TextDocumentPositionParams): LSP.Definition | null {
     const word = this.getWordAtPoint(params)
     this.logRequest({ request: 'onDefinition', params, word })
+    if (!word) {
+      return null
+    }
     return this.analyzer.findDefinition(word)
   }
 
@@ -198,17 +213,23 @@ export default class BashServer {
 
   private onDocumentHighlight(
     params: LSP.TextDocumentPositionParams,
-  ): LSP.DocumentHighlight[] {
+  ): LSP.DocumentHighlight[] | null {
     const word = this.getWordAtPoint(params)
     this.logRequest({ request: 'onDocumentHighlight', params, word })
+    if (!word) {
+      return null
+    }
     return this.analyzer
       .findOccurrences(params.textDocument.uri, word)
       .map(n => ({ range: n.range }))
   }
 
-  private onReferences(params: LSP.ReferenceParams): LSP.Location[] {
+  private onReferences(params: LSP.ReferenceParams): LSP.Location[] | null {
     const word = this.getWordAtPoint(params)
     this.logRequest({ request: 'onReferences', params, word })
+    if (!word) {
+      return null
+    }
     return this.analyzer.findReferences(word)
   }
 
@@ -271,11 +292,11 @@ export default class BashServer {
   }
 
   private async onCompletionResolve(
-    item: BashCompletionItem,
+    item: LSP.CompletionItem,
   ): Promise<LSP.CompletionItem> {
     const {
       data: { name, type },
-    } = item
+    } = item as BashCompletionItem
 
     this.connection.console.log(`onCompletionResolve name=${name} type=${type}`)
 

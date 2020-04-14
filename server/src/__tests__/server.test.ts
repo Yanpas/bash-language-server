@@ -5,7 +5,7 @@ import LspServer from '../server'
 import { CompletionItemDataType } from '../types'
 
 async function initializeServer() {
-  const diagnostics: Array<lsp.PublishDiagnosticsParams | undefined> = undefined
+  const diagnostics: Array<lsp.PublishDiagnosticsParams | undefined> = []
   const console: any = {
     error: jest.fn(),
     warn: jest.fn(),
@@ -69,7 +69,7 @@ async function initializeServer() {
 
   const server = await LspServer.initialize(connection, {
     rootPath: FIXTURE_FOLDER,
-    rootUri: undefined,
+    rootUri: null,
     processId: 42,
     capabilities: {} as any,
     workspaceFolders: null,
@@ -198,7 +198,7 @@ describe('server', () => {
     )
 
     // Limited set
-    expect('length' in result && result.length < 5).toBe(true)
+    expect(result && 'length' in result && result.length < 5).toBe(true)
     expect(result).toEqual(
       expect.arrayContaining([
         {
@@ -234,7 +234,7 @@ describe('server', () => {
     )
 
     // Entire list
-    expect('length' in result && result.length > 50).toBe(true)
+    expect(result && 'length' in result && result.length > 50).toBe(true)
   })
 
   it('responds to onCompletion with empty list when word is a comment', async () => {

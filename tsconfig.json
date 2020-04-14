@@ -1,8 +1,13 @@
 {
   "extends": "./tsconfig.base.json",
+  "exclude": [
+    "server/out",
+    "vscode-client/out",
+  ],
   "include": [
     "server",
     "testing",
+    "__mocks__",
     ".*.ts",
     ".*.js",
     "vscode-client"
